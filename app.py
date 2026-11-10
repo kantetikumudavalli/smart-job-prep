@@ -42,6 +42,19 @@ QUIZ_DB = [
     {"q": "Which keyword is used for inheritance in Python?", "options": ["extends", "inherits", "class Child(Parent)", "super"], "ans": "class Child(Parent)"},
 ]
 
+MOCK_TEST_DB = [
+    {"q": "A train 200m long crosses a pole in 10 sec. Speed?", "options": ["20 m/s", "72 km/hr", "Both A & B", "None"], "ans": "Both A & B"},
+    {"q": "If 5 workers do work in 10 days, 10 workers in?", "options": ["5 days", "20 days", "10 days", "2 days"], "ans": "5 days"},
+    {"q": "What is 25% of 640?", "options": ["120", "160", "140", "180"], "ans": "160"},
+    {"q": "Which is not a Python data type?", "options": ["List", "Tuple", "ArrayList", "Dict"], "ans": "ArrayList"},
+    {"q": "What is the output of 2**3 in Python?", "options": ["6", "8", "9", "5"], "ans": "8"},
+    {"q": "Which SQL command is used to fetch data?", "options": ["GET", "SELECT", "FETCH", "SHOW"], "ans": "SELECT"},
+    {"q": "Next number: 2, 4, 8, 16, ?", "options": ["20", "24", "32", "30"], "ans": "32"},
+    {"q": "If CP=500, Profit=20%, SP=?", "options": ["550", "600", "650", "500"], "ans": "600"},
+    {"q": "Which data structure uses FIFO?", "options": ["Stack", "Queue", "Tree", "Graph"], "ans": "Queue"},
+    {"q": "What is the full form of API?", "options": ["Application Programming Interface", "Advanced Programming Interface", "Application Process Interface", "None"], "ans": "Application Programming Interface"},
+]
+
 def get_plan():
     plan = {}
     for d in range(1, 91):
@@ -155,21 +168,59 @@ def show_notes(prefix):
     st.subheader("📚 Notes - Quick Revision")
     topic = st.selectbox("Select Topic to Read Notes:", list(NOTES_DB.keys()), key=f"notes_{prefix}")
     st.info(NOTES_DB.get(topic, "Notes coming soon!"))
-    st.write("**Tip:** Notes chadivaka Quiz rayi, appude gurthu untundi!")
+    st.write("**Tip:** After reading Notes, attempt the Quiz to remember better!")
+
+def show_mock_test(prefix):
+    st.subheader("🎯 Mock Test - Real Placement Exam Feel!")
+    st.write("10 Questions - Aptitude + Coding + SQL. This is like a real company test!")
+    if f"mock_q_{prefix}" not in st.session_state:
+        st.session_state[f"mock_q_{prefix}"] = MOCK_TEST_DB
+    questions = st.session_state[f"mock_q_{prefix}"]
+    answers = []
+    for i, q in enumerate(questions):
+        ans = st.radio(f"Q{i+1}. {q['q']}", q["options"], key=f"mock_{prefix}_{i}")
+        answers.append(ans)
+    if st.button("🏁 Finish Mock Test", key=f"finish_mock_{prefix}"):
+        score = sum(1 for i, q in enumerate(questions) if answers[i] == q["ans"])
+        st.success(f"Mock Test Result: {score} / 10")
+        st.progress(score / 10)
+        if score >= 8:
+            st.balloons()
+            st.success("🏆 Placement Ready! You can clear any company test!")
+        elif score >= 5:
+            st.warning("👍 Good! Practice 30 more days to become placement ready.")
+        else:
+            st.error("📚 Need more practice. Follow the 90-Day Roadmap daily!")
+        for i, q in enumerate(questions):
+            if answers[i] != q["ans"]:
+                st.write(f"Q{i+1}: ❌ Correct Answer: {q['ans']}")
 
 mode = st.radio("Select Your Mode:", ["🎓 Junior (1st & 2nd Year)", "💼 Senior (3rd & 4th Year)"])
 
 prefix = "junior" if "Junior" in mode else "senior"
 day_key = "junior_day" if prefix == "junior" else "senior_day"
 
-st.success("Paine 4 Tabs untayi - click chesi chudu!")
-tab1, tab2, tab3, tab4 = st.tabs(["📅 Roadmap", "🔍 Resume Scanner", "📝 Quiz", "📚 Notes"])
-
-with tab1:
-    show_roadmap(day_key, f"📅 {prefix.title()} Roadmap - 3 Months / 90 Days!")
-with tab2:
-    show_scanner(prefix)
-with tab3:
-    show_quiz(prefix)
-with tab4:
-    show_notes(prefix)
+# --- JUNIOR vs SENIOR TABS ---
+if prefix == "junior":
+    st.info("👆 Junior Mode: Roadmap, Quiz, Notes, Mock Test - No Resume Scanner for Juniors!")
+    tab1, tab2, tab3, tab4 = st.tabs(["📅 Roadmap", "🔍 Resume Scanner", "📝 Quiz", "📚 Notes"])
+    with tab1:
+        show_roadmap(day_key, "📅 Junior Roadmap - 3 Months / 90 Days!")
+    with tab2:
+        show_scanner(prefix)
+    with tab3:
+        show_quiz(prefix)
+    with tab4:
+        show_notes(prefix)
+else:
+    st.info("👍 Senior Mode: Roadmap, Resume Scanner, Quiz, Notes - Full Placement Kit!")
+    tab1, tab2, tab3, tab4 = st.tabs(["📅 Roadmap", "🔍 Resume Scanner", "📝 Quiz", "📚 Notes"])
+    with tab1:
+        show_roadmap(day_key, "📅 Senior Roadmap - 3 Months / 90 Days!")
+    with tab2:
+        show_scanner(prefix)
+    with tab3:
+        show_quiz(prefix)
+    with tab4:
+        show_notes(prefix)
+        
