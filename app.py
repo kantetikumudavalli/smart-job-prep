@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-
 st.set_page_config(page_title="Smart Job Prep AI", page_icon="🎯", layout="wide")
 st.title("🎯 Smart Job Prep AI")
 st.write("Your College Career Guidance Partner - From 1st Year to Placement")
@@ -223,4 +222,3 @@ else:
         show_quiz(prefix)
     with tab4:
         show_notes(prefix)
-        
